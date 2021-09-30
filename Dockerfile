@@ -1,92 +1,81 @@
-FROM debian:9.11
-MAINTAINER Pizaini <github.com/pizaini>
+FROM shadowbane/feeder-debian:9.11
+
+MAINTAINER Adli I. Ifkar <adly.shadowbane@gmail.com>
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV LANG=en_US.UTF-8
-
-# Install Dependencies
-RUN apt-get update && apt-get install -y -q --no-install-recommends \
-        apt-transport-https \
-        build-essential \
-        ca-certificates \
-        libssl-dev \
-        zip \
-        manpages \
-        unzip \
-        lsb-release \
-        netbase \
-        procps \
-        libcurl3 \
-        ucf \
-        libedit2 \
-        libx11-6\
-        libpng16-16 \
-        php-common \
-        locales \
-        libmagic1 \
-        libfreetype6 \
-        libfontconfig1 \
-        libgd3 \
-        libxml2
-
-RUN locale-gen && localedef -i en_US -f UTF-8 en_US.UTF-8
-#Apache environments
 ENV APACHE_RUN_DIR /var/run/apache2
 ENV APACHE_PID_FILE /var/run/apache2/httpd.pid
 ENV APACHE_RUN_USER www-data
 ENV APACHE_RUN_GROUP www-data
 ENV APACHE_LOG_DIR /var/www
 
-COPY scripts/run.sh /run.sh
-RUN chmod +x /run.sh
-
-# COPY INSTALLER
+# Download installer
 RUN mkdir /feeder
-COPY ./feeder-apps/* /feeder
-COPY postgresql/postgresql.zip /feeder/postgresql.zip
-
-## INSTALL FEEDER 3.2
 WORKDIR /feeder
-RUN unzip Feeder_3.2_Amd64_Debian.zip
-RUN chmod +x ./INSTALL
+RUN wget -c https://siakad-btp.s3.ap-southeast-1.amazonaws.com/feeder/feeder.tar.gz -O source.tar.gz
+
+# Extracting source
+RUN tar -xzvf source.tar.gz
+
+# Extracting Installer
+RUN cd /feeder/feeder/32 \
+    && unzip Feeder_3.2_Amd64_Debian.zip \
+    && chmod +x INSTALL
+
+# Extracting Patch 3,3
+RUN cd /feeder/feeder/33 \
+    && unzip Patch_3.3_Amd64_Linux.zip \
+    && chmod +x UPDATE_PATCH.3.3
+
+# Extracting Patch 3,4
+RUN cd /feeder/feeder/34 \
+    && unzip Patch_3.4_Amd64_Linux.zip \
+    && chmod +x UPDATE_PATCH.3.4
+
+# Extracting Patch 4,0
+RUN cd /feeder/feeder/40 \
+    && unzip Patch_4.0_Amd64_Linux.zip \
+    && chmod +x UPDATE_PATCH.4.0
+
+# Extracting Patch 4,1
+RUN cd /feeder/feeder/41 \
+    && unzip Patch_4.1_Amd64_Linux.zip \
+    && chmod +x UPDATE_PATCH.4.1
+
+## Installing Feeder
+WORKDIR /feeder/feeder/32
 RUN ./INSTALL
 
-## PATCH 3.3
-RUN unzip Patch_3.3_Amd64_Linux.zip
-RUN chmod +x ./UPDATE_PATCH.3.3
+## Patching 3.3
+WORKDIR /feeder/feeder/33
 RUN ./UPDATE_PATCH.3.3
 
-## PATCH 3.4
-RUN unzip Patch_3.4_Amd64_Linux.zip
-RUN chmod +x ./UPDATE_PATCH.3.4
+## Patching 3.4
+WORKDIR /feeder/feeder/34
 RUN ./UPDATE_PATCH.3.4
 
-## PATCH 4.0
-RUN unzip Patch_4.0_Amd64_Linux.zip
-RUN chmod +x ./UPDATE_PATCH.4.0
+## Patching 4.0
+WORKDIR /feeder/feeder/40
 RUN ./UPDATE_PATCH.4.0
 
-## PATCH 4.1
-RUN unzip Patch_4.1_Amd64_Linux.zip
-RUN chmod +x ./UPDATE_PATCH.4.1
+## Patching 4.1
+WORKDIR /feeder/feeder/41
 RUN ./UPDATE_PATCH.4.1
 
-# Apache configs
-COPY ssl/localhost.crt /etc/apache2/ssl/ssl.crt
-COPY ssl/localhost.key /etc/apache2/ssl/ssl.key
-COPY php-apache/conf/000-default.conf /etc/apache2/sites-available/000-default.conf
-COPY php-apache/conf/default-ssl.conf /etc/apache2/sites-available/default-ssl.conf
+## Patching postgresql
+RUN tar zxfv /feeder/postgresql/postgresql.tar.gz -C /var/lib
 
-#Enable necessary mods
-RUN a2enmod ssl
-RUN a2enmod headers
+# Cleanup
+WORKDIR /var/www/html
+RUN rm -rf /feeder/feeder*
 
-#Web ports
-EXPOSE 80
+# copy run script
+COPY run.sh /run.sh
+RUN chmod +x /run.sh
+
+# Exposing web ports
 EXPOSE 8082
-EXPOSE 443
-#Database port. Next, kita akan edit listening port postgres agar dapat diakses dari luar (non-localhost)
-EXPOSE 54321
 
 WORKDIR /var/www/html
 CMD ["/run.sh"]
