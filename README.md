@@ -1,4 +1,8 @@
 # Aplikasi Feeder PDDIKTI
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/shadowbane/docker-feeder-pddikti)
+
+
 Docker image ini guna mempermudah deployment aplikasi Feeder bagi insan Dikti yang ingin menggunakan Docker sebagai pilihan penggunaan aplikasi Feeder.
 
 ## Latar belakang
@@ -15,21 +19,13 @@ Semoga dengan docker image ini dapat mempermudah deployment Feeder dikti tanpa k
 Berapa biaya yang harus keluarkan untuk membayar sebuah virtual machine (VM) tapi hanya efektif digunakan oleh satu aplikasi? Belum lagi aplikasi lain seperti Sister. Institusi pendidikan jadinya harus punya 2 VM untuk 2 aplikasi berbeda dari kementrian yang sama. Cerdaskah cara berfikir demikian? Mari berinovasi dengan mempermudah sesama demi pendidikan Indonesia yang maju, bukan malah sebaliknya. 
 
 ## Cara menggunakan
+Simpan prefill pada ~/prefill.
 Run docker:
-
-`docker run -p 8082:8082 --name feeder-pddikti pizaini/feeder-pddikti:4.1`
-
-1. Isi prefill sesuai dengan file dan kode yang didapatkan dari PDDIKTI
-2. Patch 3.3 `/feeder/UPDATE_PATCH.3.3`
-2. Patch 3.4 `/feeder/UPDATE_PATCH.3.4`
-2. Patch 4.0 `/feeder/UPDATE_PATCH.4.0`
-2. Patch 4.1 `/feeder/UPDATE_PATCH.4.1`
+`docker run -d --name feeder-kampus -v ~/prefill:/home/prefill -v ~/docker-feeder-pddikti/data:/var/lib/postgresql -p 58082:8082 shadowbane/feeder-pddikti:latest`
 
 ## Volumes
 Sejauh ini kita hanya perlu menyimpan secara persistence database  `/var/lib/postgresql` dan prefill `/home/prefill`
 
-## Source
-https://github.com/pizaini/docker-feeder-pddikti
-
 ## Thanks to 
 https://www.kadekjayak.web.id/install-feeder-pddikti-dengan-docker/
+https://github.com/pizaini/docker-feeder-pddikti
