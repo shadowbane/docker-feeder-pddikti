@@ -19,6 +19,7 @@ Berapa biaya yang harus keluarkan untuk membayar sebuah virtual machine (VM) tap
 ## Cara menggunakan
 Simpan prefill pada ~/prefill.
 Run docker:
+`docker run -d --name feeder-kampus -v ~/prefill:/home/prefill -v ~/docker-feeder-pddikti/data:/var/lib/postgresql -p 58082:8082 shadowbane/feeder-pddikti:latest`
 
 ```
 docker run -d --name feeder-kampus -v ~/prefill:/home/prefill -v ~/docker-feeder-pddikti/data:/var/lib/postgresql -p 58082:8082 shadowbane/feeder-pddikti:latest
