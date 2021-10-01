@@ -5,7 +5,7 @@ if [ ! -d "/var/lib/postgresql/9.6" ]
     echo "Database data already exist..."
   else
     echo "Copying default data..."
-    tar -zxfv /feeder/postgresql.tar.gz -C /var/lib
+    tar zxfv /feeder/postgresql/postgresql.tar.gz -C /var/lib
 fi
 
 #change directory owner
